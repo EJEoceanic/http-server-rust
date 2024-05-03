@@ -25,6 +25,8 @@ impl Threadpool {
             workers.push(Worker::new(index, Arc::clone(&receiver)));
         }
 
+        println!("Threadpool created with {size} workers");
+
         Threadpool {
             workers,
             sender: Some(sender),
@@ -62,12 +64,11 @@ impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         // Change this to  std::thread::Builder at some point
         let thread = thread::spawn(move || loop {
-            let job = receiver.lock().unwrap().recv().unwrap();
-
             let message = receiver.lock().unwrap().recv();
 
             match message {
                 Ok(job) => {
+                    println!("Worker {id} got a job; Executing");
                     job();
                 }
                 Err(_) => {
@@ -75,7 +76,6 @@ impl Worker {
                     break;
                 }
             }
-            job();
         });
         Worker {
             id,

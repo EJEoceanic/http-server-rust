@@ -89,7 +89,12 @@ fn main() -> anyhow::Result<()> {
     for stream in listener.incoming() {
         match stream {
             Ok(_stream) => {
-                pool.execute(|| handle_conection(_stream).unwrap());
+                pool.execute(|| match handle_conection(_stream) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        println!("error: {}", e);
+                    }
+                });
             }
             Err(e) => {
                 println!("error: {}", e);
