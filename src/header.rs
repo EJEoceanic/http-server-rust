@@ -54,41 +54,41 @@ impl Status {
         }
     }
 }
-pub struct Header {
+pub struct Head {
     protocol_version: String,
     method: HTTPMethod,
     status: Status,
     path: String,
-    data: HashMap<String, String>,
+    headers: HashMap<String, String>,
 }
 
-impl Header {
-    pub fn new() -> Header {
+impl Head {
+    pub fn new() -> Head {
         Self {
             protocol_version: PROTOCOL_VERSION.to_string(),
             method: HTTPMethod::GET,
             status: Status::Ok,
             path: "".to_string(),
-            data: HashMap::new(),
+            headers: HashMap::new(),
         }
     }
 
-    pub fn from_string(header_data: &str) -> Result<Header, anyhow::Error> {
-        let mut new_header = Header::new();
-        let mut lines = header_data.lines();
+    pub fn from_string(head_data: &str) -> Result<Head, anyhow::Error> {
+        let mut new_head = Head::new();
+        let mut lines = head_data.lines();
 
-        new_header.parse_status_line(lines.nth(0))?;
+        new_head.parse_status_line(lines.nth(0))?;
 
         for line in lines {
             if let Some((key, value)) = line.split_once(":") {
-                new_header.data.insert(key.to_string(), value.to_string());
+                new_head.headers.insert(key.to_string(), value.to_string());
             }
         }
 
-        Ok(new_header)
+        Ok(new_head)
     }
 
-    pub fn parse_status_line(&mut self, line_option: Option<&str>) -> Result<(), anyhow::Error> {
+    fn parse_status_line(&mut self, line_option: Option<&str>) -> Result<(), anyhow::Error> {
         match line_option {
             Some(line) => {
                 let mut data = line.split_whitespace();
@@ -101,7 +101,43 @@ impl Header {
         }
     }
 
+    pub fn set_status_line(
+        &mut self,
+        protocol: String,
+        status: Status,
+    ) -> Result<(), anyhow::Error> {
+        self.protocol_version = protocol;
+        self.status = status;
+        Ok(())
+    }
+
+    pub fn add_header(&mut self, key: String, value: String) -> Result<(), anyhow::Error> {
+        self.headers.insert(key, value);
+        Ok(())
+    }
+
     pub fn get_path(&self) -> &str {
         &self.path.as_str()
+    }
+
+    pub fn get_status_line_string(&self) -> String {
+        let mut status_line = self.protocol_version.clone();
+        status_line.push(' ');
+        status_line.push_str(self.status.to_string());
+        status_line.push_str("\r\n");
+        status_line
+    }
+
+    pub fn get_headers_as_string(&self) -> String {
+        let mut headers = String::new();
+
+        for (key, value) in &self.headers {
+            headers.push_str(&key);
+            headers.push(' ');
+            headers.push_str(&value);
+            headers.push_str("\r\n");
+        }
+
+        headers
     }
 }

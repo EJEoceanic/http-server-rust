@@ -1,6 +1,10 @@
 pub mod header;
 pub mod linescodec;
 pub mod request;
+pub mod response;
+
+use header::PROTOCOL_VERSION;
+use response::Response;
 
 // Uncomment this block to pass the first stage
 use crate::{linescodec::LinesCodec, request::Request};
@@ -12,17 +16,33 @@ fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
     print!("Request: {}", req_str);
     let request = Request::from_string(&req_str)?;
 
-    let response = handle_response(request.get_path());
-    codec.send_message(&response)?;
+    let response = handle_response(request)?;
+
+    let res_str = response.generate_response_str();
+    codec.send_message(&res_str)?;
     Ok(())
 }
 
-fn handle_response(path: &str) -> String {
-    let response = match path {
+fn handle_response(request: Request) -> Result<Response, anyhow::Error> {
+    /*     let response = match path {
         "/" => "HTTP/1.1 200 OK\r\n\r\n",
         _ => "HTTP/1.1 404 Not Found\r\n\r\n",
+    }; */
+    let mut response = Response::new();
+    let body = if let Some((_, input)) = request.get_path().split_once("echo/") {
+        input
+    } else {
+        ""
     };
-    return response.to_string();
+    response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
+    response.add_header(String::from("Content-Type"), String::from("text/plain"))?;
+    response.add_header(
+        String::from("Content-Length"),
+        String::from(body.len().to_string()),
+    )?;
+    response.add_to_body(String::from(body));
+
+    Ok(response)
 }
 
 fn main() -> anyhow::Result<()> {

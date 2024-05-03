@@ -1,16 +1,14 @@
-use anyhow::Ok;
-
-use crate::header::Header;
+use crate::header::Head;
 
 pub struct Request {
-    header: Header,
+    header: Head,
     data: String,
 }
 
 impl Request {
     pub fn new() -> Request {
         Self {
-            header: Header::new(),
+            header: Head::new(),
             data: String::new(),
         }
     }
@@ -19,9 +17,7 @@ impl Request {
         let mut new_request = Request::new();
         let (header_data, data) = request.split_once("\r\n\r\n").unwrap_or_default();
 
-        println!("Meow 1: {} Meow 2: {}", header_data, data);
-
-        new_request.header = Header::from_string(header_data)?;
+        new_request.header = Head::from_string(header_data)?;
         new_request.data = data.to_string();
         Ok(new_request)
     }
