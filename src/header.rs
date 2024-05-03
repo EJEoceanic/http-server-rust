@@ -81,7 +81,9 @@ impl Head {
 
         for line in lines {
             if let Some((key, value)) = line.split_once(":") {
-                new_head.headers.insert(key.to_string(), value.to_string());
+                new_head
+                    .headers
+                    .insert(key.to_string(), value.trim().to_string());
             }
         }
 
