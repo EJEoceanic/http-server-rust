@@ -2,12 +2,13 @@ pub mod header;
 pub mod linescodec;
 pub mod request;
 pub mod response;
+pub mod threadpool;
 
 use header::PROTOCOL_VERSION;
 use response::Response;
 
 // Uncomment this block to pass the first stage
-use crate::{linescodec::LinesCodec, request::Request};
+use crate::{linescodec::LinesCodec, request::Request, threadpool::Threadpool};
 use std::net::{TcpListener, TcpStream};
 
 fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
@@ -83,15 +84,12 @@ fn main() -> anyhow::Result<()> {
     // Uncomment this block to pass the first stage
 
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Couldn't bind to address");
+    let pool = Threadpool::new(4);
 
     for stream in listener.incoming() {
         match stream {
             Ok(_stream) => {
-                /* let addr = _stream.peer_addr().unwrap(); */
-                /* println!("Accepted new connection at {addr:?}"); */
-
-                // let response = b"HTTP/1.1 200 OK\r\n\r\n";
-                handle_conection(_stream)?;
+                pool.execute(|| handle_conection(_stream).unwrap());
             }
             Err(e) => {
                 println!("error: {}", e);
