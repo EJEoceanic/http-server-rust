@@ -28,21 +28,32 @@ fn handle_response(request: Request) -> Result<Response, anyhow::Error> {
         "/" => "HTTP/1.1 200 OK\r\n\r\n",
         _ => "HTTP/1.1 404 Not Found\r\n\r\n",
     }; */
-    let mut response = Response::new();
-    let body = if let Some((_, input)) = request.get_path().split_once("echo/") {
-        input
-    } else {
-        ""
-    };
-    response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
-    response.add_header(String::from("Content-Type"), String::from("text/plain"))?;
-    response.add_header(
-        String::from("Content-Length"),
-        String::from(body.len().to_string()),
-    )?;
-    response.add_to_body(String::from(body));
+    let path = request.get_path_as_vec();
 
-    Ok(response)
+    let mut response = Response::new();
+
+    match path[0] {
+        "echo" => {
+            let body = if let Some((_, input)) = request.get_path().split_once("echo/") {
+                input
+            } else {
+                ""
+            };
+            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
+            response.add_header(String::from("Content-Type"), String::from("text/plain"))?;
+            response.add_header(
+                String::from("Content-Length"),
+                String::from(body.len().to_string()),
+            )?;
+            response.add_to_body(String::from(body));
+
+            Ok(response)
+        }
+        _ => {
+            response.add_status_line(PROTOCOL_VERSION.to_string(), 404)?;
+            Ok(response)
+        }
+    }
 }
 
 fn main() -> anyhow::Result<()> {

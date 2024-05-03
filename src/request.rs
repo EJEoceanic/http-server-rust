@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 use crate::header::Head;
 
 pub struct Request {
@@ -24,5 +26,16 @@ impl Request {
 
     pub fn get_path(&self) -> &str {
         self.header.get_path()
+    }
+
+    pub fn get_path_as_vec(&self) -> Vec<&str> {
+        let elements = self
+            .header
+            .get_path()
+            .trim_matches('/')
+            .split("/")
+            .collect_vec();
+
+        elements
     }
 }
