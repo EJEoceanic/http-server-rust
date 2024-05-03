@@ -133,6 +133,7 @@ impl Head {
 
         for (key, value) in &self.headers {
             headers.push_str(&key);
+            headers.push(':');
             headers.push(' ');
             headers.push_str(&value);
             headers.push_str("\r\n");
