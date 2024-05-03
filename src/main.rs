@@ -33,6 +33,10 @@ fn handle_response(request: Request) -> Result<Response, anyhow::Error> {
     let mut response = Response::new();
 
     match path[0] {
+        "" => {
+            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
+            Ok(response)
+        }
         "echo" => {
             let body = if let Some((_, input)) = request.get_path().split_once("echo/") {
                 input
