@@ -53,6 +53,22 @@ fn handle_response(request: Request) -> Result<Response, anyhow::Error> {
 
             Ok(response)
         }
+        "user-agent" => {
+            let body = if let Some(agent) = request.get_header("User-Agent") {
+                agent
+            } else {
+                ""
+            };
+
+            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
+            response.add_header(String::from("Content-Type"), String::from("text/plain"))?;
+            response.add_header(
+                String::from("Content-Length"),
+                String::from(body.len().to_string()),
+            )?;
+            response.add_to_body(String::from(body));
+            Ok(response)
+        }
         _ => {
             response.add_status_line(PROTOCOL_VERSION.to_string(), 404)?;
             Ok(response)

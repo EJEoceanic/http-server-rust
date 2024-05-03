@@ -141,4 +141,8 @@ impl Head {
 
         headers
     }
+
+    pub fn get_headers(&self) -> &HashMap<String, String> {
+        &self.headers
+    }
 }

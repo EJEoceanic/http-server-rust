@@ -38,4 +38,8 @@ impl Request {
 
         elements
     }
+
+    pub fn get_header(&self, key: &str) -> Option<&String> {
+        self.header.get_headers().get(key)
+    }
 }
