@@ -36,7 +36,7 @@ impl Response {
         let mut response_string = String::new();
         response_string.push_str(self.head.get_status_line_string().as_str());
         response_string.push_str(&self.head.get_headers_as_string().as_str());
-        response_string.push_str("\r\n\r\n");
+        response_string.push_str("\r\n");
         response_string.push_str(&self.body);
         response_string
     }
