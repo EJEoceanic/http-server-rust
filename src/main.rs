@@ -1,13 +1,14 @@
+pub mod codecs;
+pub mod files;
 pub mod http;
-pub mod io_operations;
 pub mod routes;
 pub mod threadpool;
 
-use io_operations::files::get_arg;
+use files::get_arg;
 
 use crate::{
+    codecs::linescodec::LinesCodec,
     http::{request::Request, response::Response},
-    io_operations::linescodec::LinesCodec,
     routes::handle_response,
     threadpool::Threadpool,
 };

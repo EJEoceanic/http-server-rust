@@ -1,7 +1,7 @@
 use crate::{
+    files::{read_file, write_file},
     http::header::{HTTPMethod, PROTOCOL_VERSION},
     http::response::Response,
-    io_operations::files::{read_file, write_file},
     Request,
 };
 
