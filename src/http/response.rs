@@ -1,4 +1,4 @@
-use super::header::{Head, Status};
+use super::header::{Head, Status, PROTOCOL_VERSION};
 
 pub struct Response {
     head: Head,
@@ -39,5 +39,15 @@ impl Response {
         response_string.push_str("\r\n");
         response_string.push_str(&self.body);
         response_string
+    }
+
+    pub fn internal_server_error_response() -> Response {
+        let mut head = Head::new();
+        head.set_status_line(PROTOCOL_VERSION.to_string(), Status::new(500).unwrap())
+            .unwrap();
+        Self {
+            head,
+            body: "".to_string(),
+        }
     }
 }

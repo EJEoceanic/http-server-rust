@@ -4,7 +4,9 @@ pub mod routes;
 pub mod threadpool;
 
 use crate::{
-    http::request::Request, io_operations::linescodec::LinesCodec, routes::handle_response,
+    http::{request::Request, response::Response},
+    io_operations::linescodec::LinesCodec,
+    routes::handle_response,
     threadpool::Threadpool,
 };
 use std::net::{TcpListener, TcpStream};
@@ -15,16 +17,22 @@ fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
     print!("Request: {}", req_str);
     let request = Request::from_string(&req_str)?;
 
-    let response = handle_response(request)?;
+    let response_result = handle_response(request);
+    match response_result {
+        Ok(response) => {
+            let res_str = response.generate_response_str();
+            codec.send_message(&res_str)?;
+        }
+        Err(_e) => {
+            let res_str = Response::internal_server_error_response().generate_response_str();
+            codec.send_message(&res_str)?;
+        }
+    }
 
-    let res_str = response.generate_response_str();
-    codec.send_message(&res_str)?;
     Ok(())
 }
 
 fn main() -> anyhow::Result<()> {
-    println!("Logs from your program will appear here!");
-
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Couldn't bind to address");
     let pool = Threadpool::new(4);
 
