@@ -3,14 +3,13 @@ pub mod header;
 pub mod linescodec;
 pub mod request;
 pub mod response;
+pub mod routes;
 pub mod threadpool;
 
-use files::read_file;
-use header::PROTOCOL_VERSION;
-use response::Response;
-
 // Uncomment this block to pass the first stage
-use crate::{linescodec::LinesCodec, request::Request, threadpool::Threadpool};
+use crate::{
+    linescodec::LinesCodec, request::Request, routes::handle_response, threadpool::Threadpool,
+};
 use std::net::{TcpListener, TcpStream};
 
 fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
@@ -24,90 +23,6 @@ fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
     let res_str = response.generate_response_str();
     codec.send_message(&res_str)?;
     Ok(())
-}
-
-fn handle_response(request: Request) -> Result<Response, anyhow::Error> {
-    /*     let response = match path {
-        "/" => "HTTP/1.1 200 OK\r\n\r\n",
-        _ => "HTTP/1.1 404 Not Found\r\n\r\n",
-    }; */
-    let path = request.get_path_as_vec();
-
-    let mut response = Response::new();
-
-    match path[0] {
-        "" => {
-            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
-            Ok(response)
-        }
-        "echo" => {
-            let body = if let Some((_, input)) = request.get_path().split_once("echo/") {
-                input
-            } else {
-                ""
-            };
-            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
-            response.add_header(String::from("Content-Type"), String::from("text/plain"))?;
-            response.add_header(
-                String::from("Content-Length"),
-                String::from(body.len().to_string()),
-            )?;
-            response.add_to_body(String::from(body));
-
-            Ok(response)
-        }
-        "user-agent" => {
-            let body = if let Some(agent) = request.get_header("User-Agent") {
-                agent
-            } else {
-                ""
-            };
-
-            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
-            response.add_header(String::from("Content-Type"), String::from("text/plain"))?;
-            response.add_header(
-                String::from("Content-Length"),
-                String::from(body.len().to_string()),
-            )?;
-            response.add_to_body(String::from(body));
-            Ok(response)
-        }
-        "files" => {
-            let filename = path.get(1);
-            match filename {
-                Some(file_path) => {
-                    let file_read = read_file(&file_path);
-                    match file_read {
-                        Ok(file_content) => {
-                            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
-                            response.add_header(
-                                String::from("Content-Type"),
-                                String::from("application/octet-stream"),
-                            )?;
-                            response.add_header(
-                                String::from("Content-Length"),
-                                file_content.len().to_string(),
-                            )?;
-                            response.add_to_body(file_content);
-                        }
-                        Err(_e) => {
-                            response.add_status_line(PROTOCOL_VERSION.to_string(), 404)?;
-                        }
-                    }
-                }
-                None => {
-                    // No path provided
-                    response.add_status_line(PROTOCOL_VERSION.to_string(), 400)?;
-                    response.add_to_body(String::from("No path was provided"));
-                }
-            }
-            Ok(response)
-        }
-        _ => {
-            response.add_status_line(PROTOCOL_VERSION.to_string(), 404)?;
-            Ok(response)
-        }
-    }
 }
 
 fn main() -> anyhow::Result<()> {

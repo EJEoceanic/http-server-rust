@@ -1,5 +1,6 @@
 use itertools::Itertools;
 
+use crate::header::HTTPMethod;
 use crate::header::Head;
 
 pub struct Request {
@@ -41,5 +42,13 @@ impl Request {
 
     pub fn get_header(&self, key: &str) -> Option<&String> {
         self.header.get_headers().get(key)
+    }
+
+    pub fn get_method(&self) -> &HTTPMethod {
+        return self.header.get_method();
+    }
+
+    pub fn get_body(&self) -> &String {
+        return &self.data;
     }
 }

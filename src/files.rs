@@ -33,3 +33,12 @@ pub fn read_file(path: &str) -> Result<String, Error> {
         Err(_) => Err(Error::from(ErrorKind::NotFound)),
     }
 }
+
+pub fn write_file(path: &str, contents: &str) -> Result<(), Error> {
+    let mut new_file_path = get_directory_path().expect("Directory path not provided");
+    new_file_path.push_str("/");
+    new_file_path.push_str(path);
+
+    let file_result = fs::write(new_file_path, contents)?;
+    Ok(file_result)
+}

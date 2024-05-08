@@ -37,6 +37,8 @@ pub enum Status {
     Ok = 200,
     NotFound = 404,
     BadRequest = 400,
+    Created = 201,
+    InternalServerError = 500,
 }
 
 impl Status {
@@ -45,6 +47,8 @@ impl Status {
             Status::Ok => "200 OK",
             Status::NotFound => "404 Not Found",
             Status::BadRequest => "400 Bad Request",
+            Status::Created => "201 Created",
+            Status::InternalServerError => "500 Internal Server Error",
         }
     }
 
@@ -53,6 +57,8 @@ impl Status {
             200 => Some(Status::Ok),
             404 => Some(Status::NotFound),
             400 => Some(Status::BadRequest),
+            201 => Some(Status::Created),
+            500 => Some(Status::InternalServerError),
             _ => None,
         }
     }
@@ -149,5 +155,9 @@ impl Head {
 
     pub fn get_headers(&self) -> &HashMap<String, String> {
         &self.headers
+    }
+
+    pub fn get_method(&self) -> &HTTPMethod {
+        &self.method
     }
 }
