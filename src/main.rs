@@ -3,6 +3,8 @@ pub mod io_operations;
 pub mod routes;
 pub mod threadpool;
 
+use io_operations::files::get_arg;
+
 use crate::{
     http::{request::Request, response::Response},
     io_operations::linescodec::LinesCodec,
@@ -33,7 +35,8 @@ fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let listener = TcpListener::bind("127.0.0.1:4221").expect("Couldn't bind to address");
+    let address = get_arg("--address").unwrap_or_else(|_| "127.0.0.1:4221".to_string());
+    let listener = TcpListener::bind(address).expect("Couldn't bind to address");
     let pool = Threadpool::new(4);
 
     for stream in listener.incoming() {

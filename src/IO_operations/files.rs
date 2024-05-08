@@ -4,12 +4,12 @@ use std::env::VarError;
 use std::fs;
 use std::io::{Error, ErrorKind};
 
-pub fn get_directory_path() -> Result<String, VarError> {
+pub fn get_arg(arg_name: &str) -> Result<String, VarError> {
     let mut args_iter = env::args();
     loop {
         match args_iter.next() {
             Some(arg) => {
-                if arg == "--directory" {
+                if arg == arg_name {
                     let path = args_iter.next().unwrap_or_default();
                     // println!("{path}");
                     return Ok(path);
@@ -21,7 +21,7 @@ pub fn get_directory_path() -> Result<String, VarError> {
 }
 
 pub fn read_file(path: &str) -> Result<String, Error> {
-    let mut file_path = get_directory_path().expect("Directory path not existent");
+    let mut file_path = get_arg("--directory").expect("Directory path not existent");
     file_path.push_str("/");
     file_path.push_str(path);
 
@@ -35,7 +35,7 @@ pub fn read_file(path: &str) -> Result<String, Error> {
 }
 
 pub fn write_file(path: &str, contents: &str) -> Result<(), Error> {
-    let mut new_file_path = get_directory_path().expect("Directory path not provided");
+    let mut new_file_path = get_arg("--directory").expect("Directory path not provided");
     new_file_path.push_str("/");
     new_file_path.push_str(path);
 
