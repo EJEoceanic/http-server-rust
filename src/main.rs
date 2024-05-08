@@ -1,9 +1,11 @@
+pub mod files;
 pub mod header;
 pub mod linescodec;
 pub mod request;
 pub mod response;
 pub mod threadpool;
 
+use files::read_file;
 use header::PROTOCOL_VERSION;
 use response::Response;
 
@@ -68,6 +70,37 @@ fn handle_response(request: Request) -> Result<Response, anyhow::Error> {
                 String::from(body.len().to_string()),
             )?;
             response.add_to_body(String::from(body));
+            Ok(response)
+        }
+        "files" => {
+            let filename = path.get(1);
+            match filename {
+                Some(file_path) => {
+                    let file_read = read_file(&file_path);
+                    match file_read {
+                        Ok(file_content) => {
+                            response.add_status_line(PROTOCOL_VERSION.to_string(), 200)?;
+                            response.add_header(
+                                String::from("Content-Type"),
+                                String::from("application/octet-stream"),
+                            )?;
+                            response.add_header(
+                                String::from("Content-Length"),
+                                file_content.len().to_string(),
+                            )?;
+                            response.add_to_body(file_content);
+                        }
+                        Err(_e) => {
+                            response.add_status_line(PROTOCOL_VERSION.to_string(), 404)?;
+                        }
+                    }
+                }
+                None => {
+                    // No path provided
+                    response.add_status_line(PROTOCOL_VERSION.to_string(), 400)?;
+                    response.add_to_body(String::from("No path was provided"));
+                }
+            }
             Ok(response)
         }
         _ => {

@@ -36,6 +36,7 @@ impl HTTPMethod {
 pub enum Status {
     Ok = 200,
     NotFound = 404,
+    BadRequest = 400,
 }
 
 impl Status {
@@ -43,6 +44,7 @@ impl Status {
         match self {
             Status::Ok => "200 OK",
             Status::NotFound => "404 Not Found",
+            Status::BadRequest => "400 Bad Request",
         }
     }
 
@@ -50,6 +52,7 @@ impl Status {
         match code {
             200 => Some(Status::Ok),
             404 => Some(Status::NotFound),
+            400 => Some(Status::BadRequest),
             _ => None,
         }
     }
