@@ -1,7 +1,6 @@
 use itertools::Itertools;
 
-use crate::header::HTTPMethod;
-use crate::header::Head;
+use super::header::{HTTPMethod, Head};
 
 pub struct Request {
     header: Head,
@@ -22,6 +21,7 @@ impl Request {
 
         new_request.header = Head::from_string(header_data)?;
         new_request.data = data.to_string();
+
         Ok(new_request)
     }
 

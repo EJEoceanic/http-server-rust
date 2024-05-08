@@ -1,4 +1,4 @@
-use crate::header::{Head, Status};
+use super::header::{Head, Status};
 
 pub struct Response {
     head: Head,

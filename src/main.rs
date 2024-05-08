@@ -1,14 +1,11 @@
-pub mod files;
-pub mod header;
-pub mod linescodec;
-pub mod request;
-pub mod response;
+pub mod http;
+pub mod io_operations;
 pub mod routes;
 pub mod threadpool;
 
-// Uncomment this block to pass the first stage
 use crate::{
-    linescodec::LinesCodec, request::Request, routes::handle_response, threadpool::Threadpool,
+    http::request::Request, io_operations::linescodec::LinesCodec, routes::handle_response,
+    threadpool::Threadpool,
 };
 use std::net::{TcpListener, TcpStream};
 
@@ -26,10 +23,7 @@ fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
     println!("Logs from your program will appear here!");
-
-    // Uncomment this block to pass the first stage
 
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Couldn't bind to address");
     let pool = Threadpool::new(4);
