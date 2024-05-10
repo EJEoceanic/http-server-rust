@@ -1,4 +1,7 @@
-use super::header::{Head, Status, PROTOCOL_VERSION};
+use super::{
+    encoding::Encoding,
+    header::{Head, Status, PROTOCOL_VERSION},
+};
 
 pub struct Response {
     head: Head,
@@ -34,8 +37,8 @@ impl Response {
 
     pub fn generate_response_str(&self) -> String {
         let mut response_string = String::new();
-        response_string.push_str(self.head.get_status_line_string().as_str());
-        response_string.push_str(&self.head.get_headers_as_string().as_str());
+        response_string.push_str(&self.head.get_status_line_string());
+        response_string.push_str(&self.head.get_headers_as_string());
         response_string.push_str("\r\n");
         response_string.push_str(&self.body);
         response_string
@@ -49,5 +52,10 @@ impl Response {
             head,
             body: "".to_string(),
         }
+    }
+
+    pub fn encode(&mut self, encoding: Encoding) -> Result<(), anyhow::Error> {
+        self.add_header(String::from("Content-Encoding"), encoding.to_string())?;
+        Ok(())
     }
 }

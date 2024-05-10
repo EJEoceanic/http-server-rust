@@ -51,4 +51,8 @@ impl Request {
     pub fn get_body(&self) -> &String {
         return &self.data;
     }
+
+    pub fn get_enconding(&self) -> Option<super::encoding::Encoding> {
+        self.header.get_enconding()
+    }
 }

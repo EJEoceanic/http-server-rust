@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use super::encoding::Encoding;
+
 pub const PROTOCOL_VERSION: &str = "HTTP/1.1";
 
 pub enum HTTPMethod {
@@ -127,6 +129,10 @@ impl Head {
         Ok(())
     }
 
+    pub fn get_header(&self, key: &str) -> Option<&String> {
+        self.headers.get(key)
+    }
+
     pub fn get_path(&self) -> &str {
         &self.path.as_str()
     }
@@ -159,5 +165,11 @@ impl Head {
 
     pub fn get_method(&self) -> &HTTPMethod {
         &self.method
+    }
+
+    pub fn get_enconding(&self) -> Option<Encoding> {
+        let none = String::from("None");
+        let enc_str = self.headers.get("Content-Encoding").unwrap_or(&none);
+        Encoding::new(&enc_str)
     }
 }
