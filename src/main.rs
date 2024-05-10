@@ -19,11 +19,19 @@ fn handle_conection(stream: TcpStream) -> anyhow::Result<()> {
     let req_str = codec.read_message()?;
     print!("Request: {}", req_str);
     let request = Request::from_string(&req_str)?;
+    let encoding = request.get_enconding();
 
     let response_result = handle_response(request);
     match response_result {
-        Ok(response) => {
+        Ok(mut response) => {
+            if let Some(encoding) = encoding {
+                response.encode(encoding)?;
+            } else {
+            }
+
             let res_str = response.generate_response_str();
+
+            print!("Response: {}", res_str);
             codec.send_message(&res_str)?;
         }
         Err(_e) => {
@@ -39,6 +47,7 @@ fn main() -> anyhow::Result<()> {
     let address = get_arg("--address").unwrap_or_else(|_| "127.0.0.1:4221".to_string());
     let listener = TcpListener::bind(address).expect("Couldn't bind to address");
     let pool = Threadpool::new(4);
+    println!("Starting server");
 
     for stream in listener.incoming() {
         match stream {
