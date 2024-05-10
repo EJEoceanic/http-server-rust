@@ -170,6 +170,11 @@ impl Head {
     pub fn get_enconding(&self) -> Option<Encoding> {
         let none = String::from("None");
         let enc_str = self.headers.get("Accept-Encoding").unwrap_or(&none);
-        Encoding::new(&enc_str)
+        for encoding_str in enc_str.split(',') {
+            if let Some(enc) = Encoding::new(encoding_str.trim()) {
+                return Some(enc);
+            }
+        }
+        None
     }
 }
