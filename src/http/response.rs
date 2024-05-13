@@ -56,6 +56,13 @@ impl Response {
 
     pub fn encode(&mut self, encoding: Encoding) -> Result<(), anyhow::Error> {
         self.add_header(String::from("Content-Encoding"), encoding.to_string())?;
+        let compressed_body = encoding.encode(&self.body)?;
+        self.add_header(
+            String::from("Content-Length"),
+            compressed_body.len().to_string(),
+        )?;
+
+        self.body = compressed_body;
         Ok(())
     }
 }
